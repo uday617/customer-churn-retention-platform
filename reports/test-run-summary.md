@@ -51,5 +51,5 @@ The clean baseline was generated twice with the same configuration: 20,000 custo
 
 - The GitHub remote is `https://github.com/uday617/customer-churn-retention-platform`; GitHub metadata confirmed the repository visibility is **public**.
 - `prompts/ai_prompt_history.md` records the prompts visible in this Codex task and notes that prompts from other tools or conversations must be supplied by the candidate. Those unavailable prompts cannot be reconstructed from this repository.
-- Local changes still need to be committed and pushed after they are rebased on the remote's latest `main` commit.
+- The verified submission changes were committed, rebased on the remote's latest `main`, and pushed to the public repository. The first submission push advanced `main` to `ffbcbfd`; this report update will also be pushed.
 - All generated customer data is synthetic. Reproducibility and simulation tests do not establish production churn performance or causal retention lift.
