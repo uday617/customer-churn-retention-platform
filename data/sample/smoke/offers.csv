@@ -1,0 +1,3 @@
+offer_id,offer_name,discount_rate,max_cost,min_margin_rate,start_date,end_date,active
+OFF-2026-000001,Retention 10%,0.1,120.0,0.25,2025-01-01,2025-05-01,True
+OFF-2026-000002,Retention 15%,0.15,180.0,0.2,2025-01-01,2025-05-01,True

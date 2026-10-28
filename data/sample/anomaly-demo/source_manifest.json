@@ -1,0 +1,77 @@
+{
+  "generator": "churn_platform.generator.generate_dataset",
+  "seed": 20261022,
+  "synthetic_only": true,
+  "files": {
+    "customers": {
+      "file": "customers.csv",
+      "rows": 200,
+      "sha256": "41c42810b697bd24e88e27f4040c0a89159938eeca2ed248b9d145c9e301911d"
+    },
+    "subscriptions": {
+      "file": "subscriptions.csv",
+      "rows": 200,
+      "sha256": "f62fbdb61ceefd1fabe4067cb7fee865b50f6f1da74e17cd3460cce6a720df84"
+    },
+    "usage_snapshots": {
+      "file": "usage_snapshots.csv",
+      "rows": 881,
+      "sha256": "5d11d21c251a8e7902c4f763fa7fe7a2e51f815900c1a3b7ae7445f7a5773a6c"
+    },
+    "billing_events": {
+      "file": "billing_events.csv",
+      "rows": 881,
+      "sha256": "027c108a7e3ae236501ca38d2535163bad6eb326eed606741030e30317bc902f"
+    },
+    "support_cases": {
+      "file": "support_cases.csv",
+      "rows": 69,
+      "sha256": "7bd5b1ba3eaa868ef9eee8e0a8b564af02d6341144fdca937f3f0c488d86da7c"
+    },
+    "offers": {
+      "file": "offers.csv",
+      "rows": 2,
+      "sha256": "c491cec488920852e51a5146f3148f5ff7760f863712cb57990840539d41e02a"
+    },
+    "eligibility_rules": {
+      "file": "eligibility_rules.csv",
+      "rows": 2,
+      "sha256": "1876603c5375c0b3301efca844b545451342a6639a424d751a23cd908347cd12"
+    },
+    "campaign_contacts": {
+      "file": "campaign_contacts.csv",
+      "rows": 3,
+      "sha256": "1f252b0038f33c7c7e692d6365c1fc957913506fb1b1deaaf46ce286476f6a54"
+    },
+    "churn_outcomes": {
+      "file": "churn_outcomes.csv",
+      "rows": 201,
+      "sha256": "0fea7479beccec97733ed8228c28dbf0be36bf7e41347330f0ab32e322d620d7"
+    },
+    "retention_outcomes": {
+      "file": "retention_outcomes.csv",
+      "rows": 2,
+      "sha256": "624a73e53880ca18021149f4ddb7b1a5d549dd00ec17a72c594cb6edd67aef32"
+    },
+    "features": {
+      "file": "features.csv",
+      "rows": 200,
+      "sha256": "fb847f22afc05e26a8801de479e45c5eadefaf911071a4825ba11aa538bb5581"
+    },
+    "ground_truth": {
+      "file": "ground_truth.csv",
+      "rows": 4,
+      "sha256": "41b2e64c2358462bbb746250d1f931da10dcc4475a242133ffdb94d38e77ba73"
+    },
+    "validation_issues": {
+      "file": "validation_issues.csv",
+      "rows": 10,
+      "sha256": "0f814d13ccc25b927d5b951be1db4516e6a12370f1830722f9f770c03f7caf1c"
+    },
+    "validation_summary": {
+      "file": "validation_summary.json",
+      "rows": 1,
+      "sha256": "fb575c7f9c5610ecfecfbcf39c8859d5785cb331d3e1f7006884eaa2de8ad4b1"
+    }
+  }
+}

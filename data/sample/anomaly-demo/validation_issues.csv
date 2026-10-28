@@ -1,0 +1,11 @@
+severity,issue_type,entity,record_id,detail
+error,churn_label_precedes_prediction_date,churn_outcomes,ANOM-CHURN-PREDATE,Churn date must be strictly after prediction date for a future-churn label
+error,treatment_control_leakage,campaign_contacts,ANOM-BASE-CONTACT,Customer appears in both treatment and control
+error,treatment_control_leakage,campaign_contacts,ANOM-CONTACT-LEAKAGE,Customer appears in both treatment and control
+error,treatment_control_leakage,campaign_contacts,ANOM-INELIGIBLE-OFFER,Customer appears in both treatment and control
+error,offer_sent_to_ineligible_customer,campaign_contacts,ANOM-INELIGIBLE-OFFER,Offer sent although eligibility status is not eligible
+warning,duplicate_customer_contact,campaign_contacts,ANOM-BASE-CONTACT,Potential duplicate contact; inspect campaign and assignment history
+warning,duplicate_customer_contact,campaign_contacts,ANOM-CONTACT-LEAKAGE,Potential duplicate contact; inspect campaign and assignment history
+warning,duplicate_customer_contact,campaign_contacts,ANOM-INELIGIBLE-OFFER,Potential duplicate contact; inspect campaign and assignment history
+error,multiple_offer_attribution,retention_outcomes,RET-ANOM-BASE,Customer attributed to multiple offers
+error,multiple_offer_attribution,retention_outcomes,ANOM-RET-MULTI-OFFER,Customer attributed to multiple offers

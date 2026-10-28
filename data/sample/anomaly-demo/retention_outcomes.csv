@@ -1,0 +1,3 @@
+retention_outcome_id,campaign_contact_id,customer_id,outcome_date,retained,attributed_offer_id,outcome_source,issue_type
+RET-ANOM-BASE,ANOM-BASE-CONTACT,CUS-000001,2025-05-31,True,OFF-2026-000001,synthetic_anomaly_seed,
+ANOM-RET-MULTI-OFFER,ANOM-BASE-CONTACT,CUS-000001,2025-05-31,True,OFF-2026-000002,synthetic_anomaly_seed,multiple_offer_attribution

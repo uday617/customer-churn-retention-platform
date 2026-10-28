@@ -1,0 +1,4 @@
+campaign_contact_id,customer_id,subscription_id,offer_id,prediction_date,assigned_group,offer_sent,offer_cost,eligibility_status,eligibility_reason,assignment_seed,issue_type
+ANOM-BASE-CONTACT,CUS-000001,SUB-CUS-000001-01,OFF-2026-000001,2025-05-31,treatment,True,29.9,eligible,synthetic anomaly seed record,20261022,
+ANOM-CONTACT-LEAKAGE,CUS-000001,SUB-CUS-000001-01,OFF-2026-000001,2025-05-31,control,True,29.9,eligible,synthetic anomaly seed record,20261022,treatment_control_leakage
+ANOM-INELIGIBLE-OFFER,CUS-000001,SUB-CUS-000001-01,OFF-2026-000001,2025-05-31,treatment,True,29.9,ineligible,subscription_inactive,20261022,offer_sent_to_ineligible_customer

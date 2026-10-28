@@ -1,0 +1,3 @@
+eligibility_rule_id,offer_id,min_risk,allowed_plans,require_active,max_offer_cost,effective_from,effective_to
+RULE-001,OFF-2026-000001,0.45,"basic,plus,pro",True,120.0,2025-01-01,2025-06-01
+RULE-002,OFF-2026-000002,0.65,"plus,pro",True,180.0,2025-01-01,2025-06-01

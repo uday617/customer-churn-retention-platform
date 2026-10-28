@@ -1,0 +1,17 @@
+README.md
+pyproject.toml
+src/churn_platform/__init__.py
+src/churn_platform/cli.py
+src/churn_platform/evaluation.py
+src/churn_platform/generator.py
+src/churn_platform/model.py
+src/churn_platform/pipeline.py
+src/churn_platform/validation.py
+src/churn_retention_platform.egg-info/PKG-INFO
+src/churn_retention_platform.egg-info/SOURCES.txt
+src/churn_retention_platform.egg-info/dependency_links.txt
+src/churn_retention_platform.egg-info/requires.txt
+src/churn_retention_platform.egg-info/top_level.txt
+tests/test_experiment.py
+tests/test_generator.py
+tests/test_validation.py

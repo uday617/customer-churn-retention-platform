@@ -1,0 +1,40 @@
+{
+  "tables": {
+    "customers": 200,
+    "subscriptions": 200,
+    "usage_snapshots": 881,
+    "billing_events": 881,
+    "support_cases": 69,
+    "offers": 2,
+    "eligibility_rules": 2,
+    "campaign_contacts": 3,
+    "churn_outcomes": 201,
+    "retention_outcomes": 2,
+    "features": 200,
+    "anomaly_ground_truth": 4
+  },
+  "total_rows": 2645,
+  "errors": 7,
+  "warnings": 3,
+  "issue_counts": {
+    "treatment_control_leakage": 3,
+    "duplicate_customer_contact": 3,
+    "multiple_offer_attribution": 2,
+    "churn_label_precedes_prediction_date": 1,
+    "offer_sent_to_ineligible_customer": 1
+  },
+  "note": "Injected anomalies are expected to appear in the report; baseline validation should be run separately from anomaly-injected validation.",
+  "checksums": {
+    "customers": "41c42810b697bd24e88e27f4040c0a89159938eeca2ed248b9d145c9e301911d",
+    "subscriptions": "f62fbdb61ceefd1fabe4067cb7fee865b50f6f1da74e17cd3460cce6a720df84",
+    "usage_snapshots": "5d11d21c251a8e7902c4f763fa7fe7a2e51f815900c1a3b7ae7445f7a5773a6c",
+    "billing_events": "027c108a7e3ae236501ca38d2535163bad6eb326eed606741030e30317bc902f",
+    "support_cases": "7bd5b1ba3eaa868ef9eee8e0a8b564af02d6341144fdca937f3f0c488d86da7c",
+    "offers": "c491cec488920852e51a5146f3148f5ff7760f863712cb57990840539d41e02a",
+    "eligibility_rules": "1876603c5375c0b3301efca844b545451342a6639a424d751a23cd908347cd12",
+    "campaign_contacts": "1f252b0038f33c7c7e692d6365c1fc957913506fb1b1deaaf46ce286476f6a54",
+    "churn_outcomes": "0fea7479beccec97733ed8228c28dbf0be36bf7e41347330f0ab32e322d620d7",
+    "retention_outcomes": "624a73e53880ca18021149f4ddb7b1a5d549dd00ec17a72c594cb6edd67aef32",
+    "features": "fb847f22afc05e26a8801de479e45c5eadefaf911071a4825ba11aa538bb5581"
+  }
+}

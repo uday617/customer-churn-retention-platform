@@ -1,0 +1,5 @@
+anomaly_id,issue_type,entity,record_id,expected_detection
+ANOM-001,churn_label_precedes_prediction_date,churn_outcomes,ANOM-CHURN-PREDATE,temporal_integrity_failure
+ANOM-002,treatment_control_leakage,campaign_contacts,ANOM-CONTACT-LEAKAGE,experiment_integrity_failure
+ANOM-004,offer_sent_to_ineligible_customer,campaign_contacts,ANOM-INELIGIBLE-OFFER,eligibility_violation
+ANOM-003,multiple_offer_attribution,retention_outcomes,ANOM-RET-MULTI-OFFER,duplicate_attribution_failure
