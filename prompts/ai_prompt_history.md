@@ -1,6 +1,6 @@
 # YottaFlex AI --- Customer Churn & Retention Platform
 
-## AI Prompt History, Development Prompt Pack, Debugging Log, and AI Assistance Disclosure
+## AI Prompt History, Development Prompt Pack, Debugging Log.
 
 **Purpose:** Maintain a transparent record of prompts and AI-assisted
 work for the Customer Churn & Retention Platform.
