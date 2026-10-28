@@ -1,6 +1,5 @@
 """Baseline supervised churn model and held-out evaluation."""
 from __future__ import annotations
-import numpy as np
 import pandas as pd
 from sklearn.compose import ColumnTransformer
 from sklearn.impute import SimpleImputer
@@ -35,17 +34,22 @@ def train_evaluate_model(features: pd.DataFrame, outcomes: pd.DataFrame, random_
         historical=dates<latest
         if not historical.any():
             return {"status":"insufficient_data","n":int(len(df)),"reason":"Need an earlier training cutoff and a later evaluation cutoff."},None
-        customers=df.loc[historical,"customer_id"].drop_duplicates().to_numpy()
-        rng=np.random.default_rng(random_state)
-        rng.shuffle(customers)
-        heldout=set(customers[:max(1,int(round(len(customers)*.25)))])
+        latest_cohort=df.loc[dates==latest,["customer_id","churned_within_horizon"]].drop_duplicates("customer_id")
+        cohort_labels=latest_cohort["churned_within_horizon"].astype(int)
+        if cohort_labels.nunique()<2 or cohort_labels.value_counts().min()<2:
+            return {"status":"insufficient_data","n":int(len(df)),"reason":"Latest cutoff needs at least two customers in each target class for a customer-disjoint temporal holdout."},None
+        try:
+            _,heldout_customers=train_test_split(latest_cohort["customer_id"].to_numpy(),test_size=.25,random_state=random_state,stratify=cohort_labels)
+        except ValueError:
+            return {"status":"insufficient_data","n":int(len(df)),"reason":"Latest cutoff is too small to create a stratified customer-disjoint temporal holdout."},None
+        heldout=set(heldout_customers)
         train_mask=historical & ~df.customer_id.isin(heldout)
         test_mask=(dates==latest) & df.customer_id.isin(heldout)
         X_train,X_test=X.loc[train_mask],X.loc[test_mask]
         y_train,y_test=y.loc[train_mask],y.loc[test_mask]
         if y_train.nunique()<2 or y_test.nunique()<2:
             return {"status":"insufficient_data","n":int(len(df)),"reason":"Temporal split needs both classes in earlier training data and the latest held-out customer cohort."},None
-        evaluation="temporal: earlier cutoffs train, latest cutoff test; customer-disjoint"
+        evaluation="temporal: earlier cutoffs train, latest cutoff test; customer-disjoint stratified cohort"
     else:
         X_train,X_test,y_train,y_test=train_test_split(X,y,test_size=.25,random_state=random_state,stratify=y)
         evaluation="stratified customer holdout; not temporal (single cutoff supplied)"

@@ -9,6 +9,8 @@ from churn_platform.validation import validate_data
 from churn_platform.evaluation import campaign_metrics
 from churn_platform.model import train_evaluate_model
 
+MODEL_EVALUATION_VERSION="customer-stratified-temporal-v1"
+
 st.set_page_config(page_title="Churn & Retention Platform", page_icon="📉", layout="wide")
 st.title("Customer Churn & Retention Platform")
 st.caption("Synthetic, reproducible demo data · no real customer information")
@@ -22,9 +24,11 @@ with st.sidebar:
 if "data" not in st.session_state or run:
     with st.spinner("Generating synthetic data and validating relationships..."):
         st.session_state.data=generate_dataset(GeneratorConfig(customers=int(n),months=int(months),seed=int(seed)),inject_anomalies=anomalies)
-        st.session_state.model_metrics,_=train_evaluate_model(st.session_state.data["temporal_features"],st.session_state.data["temporal_outcomes"],random_state=int(seed))
-elif "model_metrics" not in st.session_state:
+        st.session_state.pop("model_metrics",None)
+        st.session_state.pop("model_evaluation_version",None)
+if st.session_state.get("model_evaluation_version")!=MODEL_EVALUATION_VERSION or "model_metrics" not in st.session_state:
     st.session_state.model_metrics,_=train_evaluate_model(st.session_state.data["temporal_features"],st.session_state.data["temporal_outcomes"],random_state=int(seed))
+    st.session_state.model_evaluation_version=MODEL_EVALUATION_VERSION
 data=st.session_state.data
 features=data["features"].copy(); contacts=data["campaign_contacts"]; retention=data["retention_outcomes"]
 issues=validate_data(data)

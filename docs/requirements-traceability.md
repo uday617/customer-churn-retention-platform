@@ -5,7 +5,7 @@
 | Master entities first | `generator.py` creates Customer, Subscription, Offer before dependent histories | `tests/test_generator.py` |
 | Deterministic ID conventions | generator ID templates | ID uniqueness/FK tests |
 | 20k customers / 18 months configurable | `GeneratorConfig`, CLI defaults | run CLI with 20000/18 |
-| Temporal churn evaluation | `temporal_features` and `temporal_outcomes` provide monthly cutoffs; model training uses earlier cutoffs and evaluates at the latest cutoff with customers held out across the split | generate multiple cutoffs; inspect evaluation metadata |
+| Temporal churn evaluation | `temporal_features` and `temporal_outcomes` provide monthly cutoffs; model training uses earlier cutoffs and evaluates at the latest cutoff on a customer-disjoint cohort stratified by latest-cutoff outcomes | regression at 500 customers and temporal split test; inspect evaluation metadata |
 | Fixed seed | NumPy generator seeded by config | `test_reproducibility` |
 | Voluntary/involuntary churn | subscription lifecycle simulation | churn type enum checks |
 | Plan changes with preserved history | `plan_change_events` records dated transitions; monthly invoices and feature snapshots use the effective plan price | validate event dates and reconcile snapshots/invoices |

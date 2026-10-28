@@ -5,10 +5,10 @@ Environment: Windows, project `.venv`, Python 3.10, pytest 8.x.
 
 ## Automated checks
 
-- Full test suite: **23 passed** (`.venv/Scripts/python.exe -m pytest -q`, 46.69 seconds).
+- Full test suite: **24 passed** (`.venv/Scripts/python.exe -m pytest -q`, 43.64 seconds).
 - The project's test dependency is pinned to `pytest>=8.0,<9` because pytest 9.2.0 on Python 3.10 raised an internal `NodeId._str_cache` error before test execution. The pinned version ran the full suite successfully.
 - Python syntax compilation and `git diff --check` were also run during this verification; no source syntax errors or whitespace errors were reported.
-- Tests cover arithmetic-corruption detection, offer-response linkage and status consistency, temporal customer-disjoint model evaluation, CSV/JSONL exports, and SQLite seed SQL execution.
+- Tests cover arithmetic-corruption detection, offer-response linkage and status consistency, the 500-customer rare-churn temporal-split regression, temporal customer-disjoint model evaluation, CSV/JSONL exports, and SQLite seed SQL execution.
 
 ## Full-scale reproducibility
 
@@ -46,6 +46,7 @@ The clean baseline was generated twice with the same configuration: 20,000 custo
 - CSV and JSONL exports include the offer-response history, and the source manifest records row counts and file checksums. Empty JSONL tables are exported as zero-byte files.
 - The generated SQLite seed script includes the `OfferResponseEvent` table and is executed in the pipeline test.
 - The temporal model test verifies training on earlier cutoffs and evaluation on a later cutoff with customers disjoint between training and evaluation cohorts. This is a synthetic baseline, not real-world performance evidence.
+- The 500-customer dashboard configuration previously had only 3 positive labels in its 439-row latest cutoff. Random customer holdout could place all 3 outside the test cohort and suppress metrics. The split now stratifies the held-out customer cohort by latest-cutoff outcome while keeping customers disjoint. The dashboard also invalidates stale model metrics when generating new data and recalculates once when the evaluation version changes. With seed `20261022`, both 250 and 500 customers now return model status `ok` (test sizes 54 and 110 respectively). The 500-customer precision/recall at the fixed threshold are both 0.0, so metrics render but this small synthetic sample does not demonstrate useful classification performance.
 
 ## Submission state and limits
 
