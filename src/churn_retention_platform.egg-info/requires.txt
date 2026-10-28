@@ -5,4 +5,4 @@ streamlit>=1.30
 plotly>=5.18
 
 [test]
-pytest>=8.0
+pytest<9,>=8.0

@@ -25,6 +25,12 @@
 | EC-21 | Offer cost/margin boundary | Contact only when cost cap and margin floor pass | eligibility check; automated test |
 | EC-22 | Prediction feature cutoff | Exclude records after prediction date | grouped pre-cutoff usage/billing/support logic; automated test |
 | EC-23 | Uncertain / small campaign lift | Display estimate and disclose synthetic uncertainty | dashboard note; no unsupported causal claim |
+| EC-24 | Retention outcome on or before prediction date | Flag temporal-integrity error | `outcome_not_after_prediction` |
+| EC-25 | Child row has valid customer and subscription IDs that refer to different parents | Flag relationship error | `customer_subscription_mismatch` |
+| EC-26 | Retention outcome customer differs from contact customer | Flag relationship error | `customer_contact_mismatch` |
+| EC-27 | Unsupported business enum or inconsistent subscription lifecycle | Flag enum/lifecycle error | `invalid_enum`; `invalid_subscription_lifecycle` |
+| EC-28 | Control offer sent or cost recorded without successful delivery | Flag experiment/financial error | `control_offer_sent`; `cost_without_delivery` |
+| EC-29 | Plan change effective before subscription start or at/after termination | Flag lifecycle error and preserve event | `invalid_plan_change_date` |
 
 ## Deliberate anomalies
 

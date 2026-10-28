@@ -29,3 +29,22 @@ def test_duplicate_primary_key_detected():
     data=generate_dataset(GeneratorConfig(customers=20,months=4,seed=14),inject_anomalies=False)
     data["customers"]=__import__("pandas").concat([data["customers"],data["customers"].iloc[[0]]],ignore_index=True)
     assert "duplicate_primary_key" in set(validate_data(data).issue_type)
+
+def test_invoice_and_offer_cost_reconciliation():
+    data=generate_dataset(GeneratorConfig(customers=1000,months=18,seed=20261022),inject_anomalies=False)
+    invoice=data["billing_events"].index[0]
+    data["billing_events"].loc[invoice,"amount"] += 1
+    sent=data["campaign_contacts"].index[data["campaign_contacts"].offer_sent.astype(bool)]
+    assert len(sent)>0
+    data["campaign_contacts"].loc[sent[0],"offer_cost"] += 1
+    found=set(validate_data(data).issue_type)
+    assert "billing_amount_mismatch" in found
+    assert "offer_cost_mismatch" in found
+
+def test_offer_response_validation_detects_control_response():
+    data=generate_dataset(GeneratorConfig(customers=1200,months=18,seed=20261022),inject_anomalies=False)
+    assert len(data["offer_response_events"])>0
+    event=data["offer_response_events"].iloc[0]
+    contact=data["campaign_contacts"].index[data["campaign_contacts"].campaign_contact_id==event.campaign_contact_id][0]
+    data["campaign_contacts"].loc[contact,"assigned_group"]="control"
+    assert "response_for_control" in set(validate_data(data).issue_type)

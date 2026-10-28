@@ -14,4 +14,5 @@ src/churn_retention_platform.egg-info/requires.txt
 src/churn_retention_platform.egg-info/top_level.txt
 tests/test_experiment.py
 tests/test_generator.py
+tests/test_pipeline.py
 tests/test_validation.py

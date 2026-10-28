@@ -8,9 +8,9 @@ def small():
     return generate_dataset(GeneratorConfig(customers=120,months=6,seed=20261022),inject_anomalies=False)
 
 def test_required_tables_and_ids(small):
-    expected={"customers","subscriptions","usage_snapshots","billing_events","support_cases","offers","eligibility_rules","campaign_contacts","churn_outcomes","retention_outcomes","features"}
+    expected={"customers","subscriptions","usage_snapshots","billing_events","support_cases","plan_change_events","offers","eligibility_rules","campaign_contacts","churn_outcomes","retention_outcomes","offer_response_events","features","temporal_features","temporal_outcomes"}
     assert expected.issubset(small)
-    for table, pk in [("customers","customer_id"),("subscriptions","subscription_id"),("usage_snapshots","snapshot_id"),("billing_events","billing_event_id"),("support_cases","support_case_id"),("offers","offer_id"),("eligibility_rules","eligibility_rule_id"),("campaign_contacts","campaign_contact_id"),("churn_outcomes","churn_outcome_id"),("retention_outcomes","retention_outcome_id")]:
+    for table, pk in [("customers","customer_id"),("subscriptions","subscription_id"),("usage_snapshots","snapshot_id"),("billing_events","billing_event_id"),("support_cases","support_case_id"),("plan_change_events","plan_change_event_id"),("offers","offer_id"),("eligibility_rules","eligibility_rule_id"),("campaign_contacts","campaign_contact_id"),("offer_response_events","offer_response_event_id"),("churn_outcomes","churn_outcome_id"),("retention_outcomes","retention_outcome_id")]:
         assert small[table][pk].notna().all()
         assert small[table][pk].is_unique
 
@@ -59,6 +59,19 @@ def test_campaign_control_never_receives_offer(small):
     if len(contacts):
         assert not contacts.loc[contacts.assigned_group=="control","offer_sent"].astype(bool).any()
         assert (contacts.loc[~contacts.offer_sent.astype(bool),"offer_cost"]==0).all()
+
+def test_offer_response_history_is_explicit_and_linked():
+    data=generate_dataset(GeneratorConfig(customers=1200,months=18,seed=20261022),inject_anomalies=False)
+    responses=data["offer_response_events"]
+    assert responses.offer_response_event_id.is_unique
+    assert set(responses.response_status) <= {"accepted","declined","no_response","delivery_failed"}
+    contacts=data["campaign_contacts"].set_index("campaign_contact_id")
+    assert set(responses.campaign_contact_id) <= set(contacts.index)
+    for row in responses.itertuples(index=False):
+        contact=contacts.loc[row.campaign_contact_id]
+        assert contact.assigned_group=="treatment"
+        assert bool(contact.offer_sent)==(row.response_status!="delivery_failed")
+    assert "no_response" in set(responses.response_status)
 
 def test_eligibility_margin_is_respected(small):
     offers=small["offers"].set_index("offer_id")

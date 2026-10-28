@@ -5,10 +5,10 @@ A reproducible end-to-end demonstration of churn-risk scoring, offer eligibility
 ## Features
 
 - Deterministic synthetic generation for 20,000 customers across 18 months (configurable for a fast starter run).
-- Customer, Subscription, UsageSnapshot, BillingEvent, SupportCase, Offer, EligibilityRule, CampaignContact, ChurnOutcome, and RetentionOutcome entities with deterministic IDs and linked parent IDs.
-- Pre-prediction feature snapshots, transparent heuristic risk scores, a scikit-learn logistic-regression baseline, eligibility/margin checks, randomized treatment/control assignments, and outcome simulation with a documented treatment effect.
+- Customer, Subscription, UsageSnapshot, BillingEvent, SupportCase, PlanChangeEvent, Offer, EligibilityRule, CampaignContact, OfferResponseEvent, ChurnOutcome, and RetentionOutcome entities with deterministic IDs and linked parent IDs.
+- Pre-prediction feature snapshots, transparent heuristic risk scores, a scikit-learn logistic-regression baseline, eligibility/margin checks, randomized treatment/control assignments, explicit accepted/declined/no-response/delivery-failed offer outcomes, and retention simulation with a documented treatment effect.
 - Four labelled required anomalies: churn label before prediction date, offer sent to an ineligible customer, treatment/control leakage, and multiple-offer attribution.
-- CSV exports, source manifest with checksums, separate ground-truth file, validation report, and reproducibility checks.
+- CSV and JSON Lines exports, executable SQLite seed SQL, a source manifest with checksums, a separate ground-truth file, validation report, and reproducibility checks.
 - Streamlit dashboard with risk, campaign, data-quality and table-explorer views.
 - Automated tests for schema presence, IDs, foreign keys, temporal integrity, anomaly detection, reproducibility, configuration validation, and experiment calculations.
 
@@ -23,7 +23,18 @@ python -m venv .venv
 python -m pip install -r requirements.txt
 pip install -e .
 pytest -q
-streamlit run dashboard/app.py
+python -m streamlit run dashboard/app.py
+```
+
+On Windows, run commands from the repository root. If the virtual environment
+is not activated, use its interpreter explicitly so the app and dependencies
+come from the same environment:
+
+```powershell
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+.\.venv\Scripts\python.exe -m pip install -e .
+.\.venv\Scripts\python.exe -m pytest -q
+.\.venv\Scripts\python.exe -m streamlit run dashboard/app.py
 ```
 
 ## Generate the full dataset
@@ -46,9 +57,11 @@ Use `--no-anomalies` to export a clean baseline and validate it separately. The 
 - **Churn:** a subscription termination event. `voluntary` and `involuntary` are distinct types; `none` means no churn event was generated during the observation window.
 - **Prediction date:** the end of the penultimate month in the generated history. Features are built only from usage, billing and support records available by that cutoff.
 - **Prediction horizon:** the next month. `churned_within_horizon` is derived from the simulated subscription lifecycle, not independently randomized.
-- **Risk score:** transparent heuristic baseline in `[0,1]` based on usage change, late/failed payments, and support-case volume. A separate logistic-regression baseline is trained/evaluated on a stratified customer holdout. Because this generated run currently has one prediction window per customer, this is not a true temporal backtest; multiple historical cutoffs and a strictly later test period are required before claiming temporal validation or production readiness.
+- **Temporal evaluation:** `temporal_features` and `temporal_outcomes` contain monthly cutoff snapshots. The supervised baseline trains on earlier cutoff dates and evaluates on the latest date using a disjoint customer cohort. Single-cutoff inputs still use a stratified holdout and are explicitly labelled non-temporal.
+- **Risk score:** transparent heuristic baseline in `[0,1]` based on usage change, late/failed payments, and support-case volume. The logistic-regression baseline uses multiple historical cutoffs when available, trains on earlier cutoffs, and evaluates on the latest cutoff with disjoint customers. A single-cutoff input falls back to a stratified holdout and is labelled non-temporal.
 - **Offer eligibility:** risk threshold, plan allow-list, active subscription at prediction, offer active period, offer cost cap and contribution-margin floor. Ineligible customers are not contacted by the normal campaign flow.
-- **Experiment:** eligible contacts are randomly assigned treatment/control using the fixed generator RNG. Assignment is immutable in the generated record. Outcome simulation allows a treatment effect only for sent treatment offers in the next-month churn case.
+- **Experiment:** eligible contacts are randomly assigned treatment/control using the fixed generator RNG. Assignment is immutable in the generated record. Outcome simulation allows a treatment effect only for accepted, delivered treatment offers in the next-month churn case.
+- **Offer response:** each treatment contact records `accepted`, `declined`, `no_response`, or `delivery_failed`. Three percent of treatment assignments fail delivery; delivered offers use a documented 25%/15%/60% response split. Control assignment remains intention-to-treat and has no response event.
 - **Evaluation:** retention lift is treatment retention rate minus control retention rate, by assigned group (intention-to-treat). Small synthetic runs may have noisy estimates. Confidence intervals and power analysis should precede real business decisions.
 - **Profit:** the dashboard shows offer costs and an explicitly labelled contribution proxy. This is not a fully causal incremental-profit estimate because future customer lifetime value, discount duration and counterfactual individual outcomes are unknown.
 - **Anomalies:** injected anomalies are deliberate negative scenarios. They should be detected, not silently repaired. Run baseline and anomaly-injected validation separately.
@@ -65,7 +78,7 @@ IDs are stable strings and parent references must match exactly.
 
 ## Outputs
 
-Each generated table is exported as a CSV, along with `source_manifest.json`, `ground_truth.csv`, `validation_issues.csv`, and `validation_summary.json`. The manifest records row counts and SHA-256 file checksums. Regenerate with the same version, configuration and seed to compare outputs.
+Each generated table is exported as CSV and JSON Lines. `seed_data.sql` contains the documented relational schema and executable SQLite inserts for the ten core entities plus append-only plan-change and offer-response events. Derived features and anomaly ground truth remain available in their own CSV/JSONL outputs and are not inserted into the normalized core schema. Empty JSONL exports are zero-byte files. The package also writes `source_manifest.json`, `ground_truth.csv`, `validation_issues.csv`, and `validation_summary.json`. The manifest records row counts and SHA-256 checksums for generated artifacts. Regenerate with the same version, configuration and seed to compare outputs.
 
 ## Test strategy
 
@@ -79,7 +92,7 @@ Tests are deliberately split by generator/integrity, anomaly validation, and exp
 
 - The generated behavior is synthetic and cannot establish real-world churn rates or offer effectiveness.
 - The dashboard defaults to a manageable interactive dataset; the full 20k × 18-month dataset is generated by CLI.
-- The heuristic score is a baseline; the logistic-regression model is a first supervised baseline, not production-validated. Evaluation currently uses a customer-level stratified holdout rather than a true later-period temporal backtest.
+- The heuristic score is a baseline; the logistic-regression model is a first supervised baseline, not production-validated. The multi-cutoff backtest uses synthetic history and a single latest evaluation period; it is not production validation.
 - Campaign outcomes use a documented simulation rule, not real observed customer outcomes.
 - No live email/SMS sending, billing integration, or customer data ingestion is implemented.
 

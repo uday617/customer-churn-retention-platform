@@ -22,6 +22,9 @@ with st.sidebar:
 if "data" not in st.session_state or run:
     with st.spinner("Generating synthetic data and validating relationships..."):
         st.session_state.data=generate_dataset(GeneratorConfig(customers=int(n),months=int(months),seed=int(seed)),inject_anomalies=anomalies)
+        st.session_state.model_metrics,_=train_evaluate_model(st.session_state.data["temporal_features"],st.session_state.data["temporal_outcomes"],random_state=int(seed))
+elif "model_metrics" not in st.session_state:
+    st.session_state.model_metrics,_=train_evaluate_model(st.session_state.data["temporal_features"],st.session_state.data["temporal_outcomes"],random_state=int(seed))
 data=st.session_state.data
 features=data["features"].copy(); contacts=data["campaign_contacts"]; retention=data["retention_outcomes"]
 issues=validate_data(data)
@@ -41,6 +44,17 @@ with tabs[0]:
         st.subheader("Risk distribution")
         if len(features): st.plotly_chart(px.histogram(features,x="risk_score",nbins=20,title="Heuristic risk score (0–1)"),use_container_width=True)
     st.info("This demo uses a transparent heuristic score. It is a baseline, not a validated production prediction model.")
+    st.subheader("Temporal model evaluation")
+    model_report=st.session_state.model_metrics
+    if model_report.get("status")=="ok":
+        a,b,c,d=st.columns(4)
+        a.metric("PR-AUC", "N/A" if model_report.get("pr_auc") is None else f"{model_report['pr_auc']:.3f}")
+        b.metric("Precision",f"{model_report['precision']:.3f}")
+        c.metric("Recall",f"{model_report['recall']:.3f}")
+        d.metric("F1",f"{model_report['f1']:.3f}")
+        st.caption(f"{model_report['evaluation']} · train through {model_report['train_cutoff_max']} · test {model_report['test_cutoff']} · n={model_report['test_n']:,}")
+    else:
+        st.info(f"Model metrics unavailable: {model_report.get('reason','insufficient data for temporal evaluation')}")
 with tabs[1]:
     if len(features):
         threshold=st.slider("High-risk threshold",0.0,1.0,0.45,0.01)
@@ -59,6 +73,14 @@ with tabs[2]:
         c.metric("Retention lift", "N/A" if b2 is None else f"{b2*100:.2f} pp")
         d.metric("Offer cost",f"₹{metrics['offer_cost']:,.2f}")
         st.json(metrics)
+        responses=data["offer_response_events"]
+        counts=responses.response_status.value_counts() if len(responses) else pd.Series(dtype=int)
+        response_n=int(counts.get("accepted",0)+counts.get("declined",0)+counts.get("no_response",0))
+        accepted_rate=int(counts.get("accepted",0))/response_n if response_n else None
+        r1,r2,r3=st.columns(3)
+        r1.metric("Offer acceptance rate", "N/A" if accepted_rate is None else f"{accepted_rate*100:.1f}%")
+        r2.metric("No response",int(counts.get("no_response",0)))
+        r3.metric("Delivery failures",int(counts.get("delivery_failed",0)))
         st.caption("Synthetic experiment only. Lift can be noisy at small sample sizes; report confidence intervals before business decisions.")
     else: st.warning("No eligible campaign contacts were generated for this configuration.")
 with tabs[3]:

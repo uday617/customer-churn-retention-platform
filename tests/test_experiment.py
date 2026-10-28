@@ -41,3 +41,13 @@ def test_model_trains_when_both_classes_available():
     assert model is not None
     assert 0 <= metrics["precision"] <= 1
     assert 0 <= metrics["recall"] <= 1
+
+def test_model_uses_later_cutoff_and_disjoint_customers():
+    from churn_platform.generator import GeneratorConfig, generate_dataset
+    from churn_platform.model import train_evaluate_model
+    data=generate_dataset(GeneratorConfig(customers=2000,months=18,seed=20261022),inject_anomalies=False)
+    metrics,model=train_evaluate_model(data["temporal_features"],data["temporal_outcomes"],random_state=20261022)
+    assert metrics["status"]=="ok", metrics
+    assert metrics["evaluation"]=="temporal: earlier cutoffs train, latest cutoff test; customer-disjoint"
+    assert metrics["train_cutoff_max"] < metrics["test_cutoff"]
+    assert model is not None

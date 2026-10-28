@@ -12,8 +12,8 @@ All records are synthetic. Required means non-null in the baseline. IDs are immu
 | Customer | seasonal_user | boolean | yes | true/false | derived from generator assignment |
 | Subscription | subscription_id | string | yes | `SUB-<customer-id>-01` | PK; FK customer |
 | Subscription | customer_id | string | yes | Customer ID | FK; one customer can have multiple subscriptions in schema design |
-| Subscription | plan | enum | yes | basic, plus, pro | enum check |
-| Subscription | monthly_price | decimal | yes | INR/month, >= 0 | source of offer-cost calculation |
+| Subscription | plan | enum | yes | basic, plus, pro | plan effective at the end of generated history; prior transitions are PlanChangeEvent records |
+| Subscription | monthly_price | decimal | yes | INR/month, >= 0 | price effective at the end of generated history; campaign pricing uses the prediction-date feature snapshot |
 | Subscription | start_date/end_date | date/null | start yes | ISO date | end >= start; active subscription has null end date |
 | Subscription | status | enum | yes | active, churned | lifecycle consistency with end date |
 | Subscription | churn_type | enum | yes | none, voluntary, involuntary | none if no churn event in window |
@@ -57,6 +57,11 @@ All records are synthetic. Required means non-null in the baseline. IDs are immu
 | CampaignContact | eligibility_status | enum | yes | eligible, ineligible | sent offer requires eligible status |
 | CampaignContact | eligibility_reason | string | yes | rule outcome explanation | required for traceability |
 | CampaignContact | assignment_seed | integer | yes | fixed seed | audit reproducibility |
+| OfferResponseEvent | offer_response_event_id | string | yes | `RESPONSE-<customer-id>-YYYY` | PK; one response lifecycle record per treatment contact |
+| OfferResponseEvent | campaign_contact_id/customer_id/offer_id | string | yes | parent IDs | FKs; contact must be treatment-assigned and customer/offer must match |
+| OfferResponseEvent | response_date | date | yes | ISO date | after prediction date and within the outcome window |
+| OfferResponseEvent | response_status | enum | yes | accepted, declined, no_response, delivery_failed | delivery failure must agree with contact delivery; no-response is explicit |
+| OfferResponseEvent | simulation_rule | string | yes | documented synthetic process | provenance for response outcome |
 | ChurnOutcome | churn_outcome_id | string | yes | `CHURN-<customer-id>-YYYY` | PK |
 | ChurnOutcome | customer_id/subscription_id | string | yes | parent IDs | FKs |
 | ChurnOutcome | prediction_date | date | yes | ISO date | feature cutoff date |
@@ -70,6 +75,11 @@ All records are synthetic. Required means non-null in the baseline. IDs are immu
 | RetentionOutcome | retained | boolean | yes | true/false | derived from simulated behavioral outcome |
 | RetentionOutcome | attributed_offer_id | string/null | optional | Offer ID/null | one attribution per customer/outcome policy |
 | RetentionOutcome | outcome_source | string | yes | documented simulation rule | auditable provenance |
+| PlanChangeEvent | plan_change_event_id | string | yes | `PLAN-<subscription-id>-YYYY-MM` | PK; immutable event ID |
+| PlanChangeEvent | customer_id/subscription_id | string | yes | parent IDs | FKs must agree with the subscription owner |
+| PlanChangeEvent | effective_month | date | yes | ISO month start | within the active subscription period and before the prediction cutoff |
+| PlanChangeEvent | previous_plan/new_plan | enum | yes | basic, plus, pro | must differ; records the transition without overwriting event history |
+| PlanChangeEvent | previous_monthly_price/new_monthly_price | decimal | yes | INR/month, non-negative | derived from the plan price schedule |
 
 ## Relationships and cardinality
 
@@ -79,4 +89,6 @@ All records are synthetic. Required means non-null in the baseline. IDs are immu
 - Customer 1:N CampaignContact across campaigns; the current generated campaign uses at most one normal contact per customer.
 - CampaignContact 1:0..1 RetentionOutcome for a single campaign outcome.
 - A customer can have multiple offers across separate campaigns, but attribution must be explicit and deduplicated for any one outcome.
+- CampaignContact 1:0..1 OfferResponseEvent; only treatment contacts receive a response event, with accepted, declined, no_response, or delivery_failed recorded explicitly.
+- Subscription 1:N PlanChangeEvent; each plan transition is retained as an append-only event, while the Subscription row holds the plan and monthly price effective at the end of generated history.
 - Effective dates govern rules and offers. The generated records preserve outcomes and assignment records instead of rewriting them in place.
